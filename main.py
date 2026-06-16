@@ -1,10 +1,19 @@
 
 
-def load_policy():
-    with open("policy.txt","r") as file:
-        data = file.read()
+import fitz
 
-        return data
+def load_policy():
+
+    pdf = fitz.open("policy.pdf")
+
+    text = ""
+
+    for page in pdf:
+        text += page.get_text()
+
+    pdf.close()
+
+    return text
 
 def search_policy():
 
@@ -40,7 +49,7 @@ def ai_agent(question):
     print("Planning: Search the company policy file.")
 
     # Tool Selection
-    print("Tool Selected: Text File Search Tool")
+    print("Tool Selected: PDF File Search Tool")
 
     # Action
     result = search_policy(question)
@@ -56,11 +65,6 @@ def ai_agent(question):
         print("Decision: Information not found.")
         return "Sorry, I could not find that information in the company policy."
 
-print("=" * 55)
-print("      COMPANY POLICY AI AGENT (VERSION 2)")
-print("      Knowledge Source : policy.txt")
-print("Type 'exit' to quit.")
-print("=" * 55)
 
 while True:
 
@@ -74,3 +78,4 @@ while True:
 
     print("\nAgent:", answer)
     
+
