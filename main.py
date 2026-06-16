@@ -14,7 +14,6 @@ def search_policy(questions):
 
         return None
 
-
 def ai_agent(question):
 
     # Goal
@@ -50,3 +49,12 @@ while True:
 
     answer = ai_agent(user_question)
     print("\nAgent:", answer)
+
+def load_policy():
+    with open("policy.txt","r") as file:
+        data = file.read()
+
+        return data
+
+        
+    
