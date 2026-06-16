@@ -7,6 +7,20 @@ embedding_model = SentenceTransformer(
     "BAAI/bge-small-en-v1.5"
 )
 
+def load_policy():
+
+    pdf = fitz.open("policy.pdf")
+
+    text = ""
+
+    for page in pdf:
+        text += page.get_text()
+
+    pdf.close()
+
+    return text
+
+
 def chunk_text(text, chunk_size=500):
 
     chunks = []
@@ -41,18 +55,7 @@ def build_vector_store():
 
     return index, chunks
 
-def load_policy():
 
-    pdf = fitz.open("policy.pdf")
-
-    text = ""
-
-    for page in pdf:
-        text += page.get_text()
-
-    pdf.close()
-
-    return text
 
 def search_policy(question):
 
@@ -95,6 +98,7 @@ def ai_agent(question):
     # Final Response
     return result
 
+VECTOR_INDEX, DOCUMENT_CHUNKS = build_vector_store()
 
 
 while True:
