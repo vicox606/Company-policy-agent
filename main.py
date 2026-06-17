@@ -1,6 +1,11 @@
 
+import faiss
+import numpy as np
+from sentence_transformers import SentenceTransformer
 
-import fitz
+embedding_model = SentenceTransformer(
+    "BAAI/bge-small-en-v1.5"
+)
 
 def load_policy():
 
@@ -15,55 +20,85 @@ def load_policy():
 
     return text
 
-def search_policy():
 
-    policy_text = load_policy
+def chunk_text(text, chunk_size=500):
 
-    policy_text = policy_text.lower()
-    question = question.lower()
+    chunks = []
 
-    if "casual leave" in question:
-        return extract_line(policy_text, "casual leave")
+    for i in range(0, len(text), chunk_size):
+        chunks.append(text[i:i + chunk_size])
 
-    elif "annual leave" in question:
-        return extract_line(policy_text, "annual leave")
+    return chunks
 
-    elif "remote work" in question:
-        return extract_line(policy_text, "remote work")
+# ------------------------------
+# Create Vector Database
+# ------------------------------
 
-    elif "office hours" in question:
-        return extract_line(policy_text, "office hours")
+def build_vector_store():
 
-    else:
-        return None
+    text = load_policy()
+
+    chunks = chunk_text(text)
+
+    embeddings = embedding_model.encode(
+        chunks,
+        convert_to_numpy=True
+    )
+
+    dimension = embeddings.shape[1]
+
+    index = faiss.IndexFlatL2(dimension)
+
+    index.add(
+        np.array(embeddings).astype("float32")
+    )
+
+    return index, chunks
+
+
+
+def search_policy(question):
+
+    index, chunks = build_vector_store()
+
+    query_embedding = embedding_model.encode(
+        [question],
+        convert_to_numpy=True
+    )
+
+    distances, indices = index.search(
+        np.array(query_embedding).astype("float32"),
+        1
+    )
+
+    best_match = chunks[indices[0][0]]
+
+    return best_match
 
 
 def ai_agent(question):
 
-    print("\n----- AI AGENT STARTED -----")
-
+    
     # Goal
-    print("Goal: Answer the user's question.")
+    print("Goal      : Answer user's question")
 
-    # Planning
-    print("Planning: Search the company policy file.")
+    # Plan
+    print("Planning  : Search enterprise knowledge base")
 
     # Tool Selection
-    print("Tool Selected: PDF File Search Tool")
+    print("Tool      : FAISS Semantic Search Tool")
 
     # Action
     result = search_policy(question)
 
     # Observation
-    print("Observation:", result)
+    print("Observation:")
+    print("Relevant document chunk retrieved.")
 
-    # Decision
-    if result:
-        print("Decision: Information found.")
-        return result
-    else:
-        print("Decision: Information not found.")
-        return "Sorry, I could not find that information in the company policy."
+    # Final Response
+    return result
+
+VECTOR_INDEX, DOCUMENT_CHUNKS = build_vector_store()
 
 
 while True:
