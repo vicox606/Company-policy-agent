@@ -9,7 +9,7 @@ embedding_model = SentenceTransformer(
 
 def load_policy():
 
-    pdf = fitz.open("policy.pdf")
+    pdf = fitz.open("RAG problem statement.pdf")
 
     text = ""
 
