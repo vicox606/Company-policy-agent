@@ -30,9 +30,7 @@ def chunk_text(text, chunk_size=500):
 
     return chunks
 
-# ------------------------------
-# Create Vector Database
-# ------------------------------
+
 
 def build_vector_store():
 
